@@ -13,16 +13,17 @@ var readAdc = function(channel, callback, opts) {
 	if (channel < 0 || channel > 3) throw new Error('adc channel number must be in the range of 0--3');
 	// pin numbers from opts or default ones
 	var clockPin = opts && opts.clockPin ? opts.clockPin : 18,
-		mosiPin = opts && opts.mosiPin ? opts.mosiPin : 23,
-		misoPin = opts && opts.misoPin ? opts.misoPin : 24,
+		misoPin = opts && opts.misoPin ? opts.misoPin : 23,
+		mosiPin = opts && opts.mosiPin ? opts.mosiPin : 24,
 		csPin = opts && opts.csPin ? opts.csPin : 25;
-
+	// direction of each pin
 	var pinsConf = [
 		{pin: clockPin, direction: 'out'},
-		{pin: mosiPin, direction: 'out'},
 		{pin: misoPin, direction: 'in'},
+		{pin: mosiPin, direction: 'out'},
 		{pin: csPin, direction: 'out'}
 	];
+	// handle refs to the gpio instances
 	var pins = {};
 
 	var _initGpio = function(pinConf, done) {
@@ -33,12 +34,13 @@ var readAdc = function(channel, callback, opts) {
 			}
 		});
 	};
-
+	// start reading spi data when all pins are ready
 	async.each(pinsConf, _initGpio, function(err) {
 		if (err) throw err;
 		pins[csPin].set(1);
 		pins[clockPin].set(0);
 		pins[csPin].set(0);
+
 		var cmdOut = channel;
 		cmdOut |= 0x18;
 		cmdOut <<= 3;
