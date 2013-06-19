@@ -9,27 +9,32 @@ var gpio = require('gpio'),
  *   for clock, mosi, miso and cspin
  * @return {Number} the read value between 0 and 1023
  */
-var readAdc = function(channel, opts) {
-	if (!channel) throw new Error('adc channel number must be defined');
+var readAdc = function(channel, callback, opts) {
+	if (channel < 0 || channel > 3) throw new Error('adc channel number must be in the range of 0--3');
 	// pin numbers from opts or default ones
-	var clockPin = opts.clockPin || 18,
-		mosiPin = opts.mosiPin || 23,
-		misoPin = opts.misoPin || 24,
-		csPin = opts.csPin || 25;
+	var clockPin = opts && opts.clockPin ? opts.clockPin : 18,
+		mosiPin = opts && opts.mosiPin ? opts.mosiPin : 23,
+		misoPin = opts && opts.misoPin ? opts.misoPin : 24,
+		csPin = opts && opts.csPin ? opts.csPin : 25;
 
-	var pinNumbers = [clockPin, mosiPin, misoPin, csPin];
+	var pinsConf = [
+		{pin: clockPin, direction: 'out'},
+		{pin: mosiPin, direction: 'out'},
+		{pin: misoPin, direction: 'in'},
+		{pin: csPin, direction: 'out'}
+	];
 	var pins = {};
 
-	var _initGpio = function(pinNumber, done) {
-		pins[pinNumber] = gpio.export(pinNumber, {
-			direction: out,
+	var _initGpio = function(pinConf, done) {
+		pins[pinConf.pin] = gpio.export(pinConf.pin, {
+			direction: pinConf.direction,
 			ready: function() {
 				done();
 			}
 		});
 	};
 
-	async.each(pinNumbers, _initGpio, function(err) {
+	async.each(pinsConf, _initGpio, function(err) {
 		if (err) throw err;
 		pins[csPin].set(1);
 		pins[clockPin].set(0);
@@ -53,17 +58,18 @@ var readAdc = function(channel, opts) {
 			pins[clockPin].set(1);
 			pins[clockPin].set(0);
 			adcOut <<= 1;
-			if (pins[mosiPin].value) {
+			if (pins[misoPin].value) {
 				adcOut |= 0x1;
 			}
 		}
 		pins[csPin].set(1);
 		adcOut >>= 1;
-		return adcOut;
+		callback(adcOut);
 	});
 };
 
-setTimeout(function() {
-   var adc = readAdc(0);
-   console.log(adc);
+setInterval(function() {
+	readAdc(0, function(value) {
+		console.log(value);
+	});
 }, 1000);
