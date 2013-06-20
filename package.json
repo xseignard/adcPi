@@ -1,25 +1,19 @@
 {
   "name": "adcPi",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "Using ADC with a Pi",
   "repository": {
     "type": "git",
     "url": "git://github.com/xseignard/adcPi.git"
   },
-  "author": "",
-  "license": "BSD",
+  "author": "Xavier Seignard<xavier.seignard@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/xseignard/adcPi/issues"
   },
   "dependencies": {
     "gpio": "~0.2.4",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "pi-gpio": "0.0.2"
   }
 }

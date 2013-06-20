@@ -1,29 +1,22 @@
-var gpio = require('gpio'),
+var gpio = require('pi-gpio'),
 	async = require('async'),
-	SPICLK  = 18,
-	SPIMISO = 23,
-	SPIMOSI = 24,
-	SPICS   = 25,
-	pins, clockPin, misoPin, mosiPin, csPin;
-
-
-var setup = function(callback, opts) {
-	// direction of each pin
-	var pinsConf = [
+	SPICLK  = 12,
+	SPIMISO = 16,
+	SPIMOSI = 18,
+	SPICS   = 22,
+	pinsConf = [
 		{pin: SPICLK, direction: 'out'},
 		{pin: SPIMISO, direction: 'in'},
 		{pin: SPIMOSI, direction: 'out'},
 		{pin: SPICS, direction: 'out'}
-	];
-	// handle refs to the gpio instances
-	pins = {};
+	],
+	pins;
 
+
+var setup = function(callback) {
 	var _initGpio = function(pinConf, done) {
-		pins[pinConf.pin] = gpio.export(pinConf.pin, {
-			direction: pinConf.direction,
-			ready: function() {
-				done();
-			}
+		gpio.open(pinConf.pin, pinConf.direction, function(err) {
+			done();
 		});
 	};
 	// start reading spi data when all pins are ready
@@ -34,22 +27,21 @@ var setup = function(callback, opts) {
 };
 
 var readAdc = function(channel, callback) {
-	pins[SPICS].set(1, function() {
-		pins[SPICLK].set(0, function() {
-			console.log('test');
-			pins[SPICS].set(0, function() {
-				var cmdOut = channel | 0x18;
+	gpio.write(SPICS, 1, function() {
+		gpio.write(SPICLK, 0, function() {
+			gpio.write(SPICS, 0, function() {
+				var cmdOut = channel;
+				cmdOut |= 0x18;
 				cmdOut <<= 3;
-				async.times(
+				async.timesSeries(
 					// do this 5 times
 					5,
 					// each time apply this function
 					function(n, next) {
-						console.log('test');
-						pins[SPIMOSI].set(cmdOut & 0x80, function() {
+						gpio.write(SPIMOSI, cmdOut & 0x80, function() {
 							cmdOut <<= 1;
-							pins[SPICLK].set(1, function() {
-								pins[SPICLK].set(0, function() {
+							gpio.write(SPICLK, 1, function() {
+								gpio.write(SPICLK, 0, function() {
 									next();
 								});
 							});
@@ -58,16 +50,16 @@ var readAdc = function(channel, callback) {
 					// when done
 					function(err, stuff) {
 						var adcOut = 0;
-						async.times(
+						async.timesSeries(
 							// do this 12 times
 							12,
 							// each time apply this function
 							function(n, next) {
-								pins[SPICLK].set(1, function() {
-									pins[SPICLK].set(0, function() {
+								gpio.write(SPICLK, 1, function() {
+									gpio.write(SPICLK, 0, function() {
 										adcOut <<= 1;
-										pins[SPIMISO]._get(function(value) {
-											if (value) {
+										gpio.read(SPIMISO, function(err, value) {
+											if (value > 0) {
 												adcOut |= 0x1;
 											}
 											next();
@@ -77,7 +69,7 @@ var readAdc = function(channel, callback) {
 							},
 							// when done
 							function(err) {
-								pins[SPICS].set(1, function() {
+								gpio.write(SPICS, 1, function() {
 									adcOut >>= 1;
 									callback(adcOut);
 								});
@@ -90,10 +82,28 @@ var readAdc = function(channel, callback) {
 	});
 };
 
+var unexport = function () {
+	async.each(
+		pinsConf,
+		function(pinConf, done) {
+			gpio.close(pinConf.pin, function() {
+				done();
+			});
+		},
+		function(err) {
+			console.log('terminated');
+			process.exit();
+		}
+	);
+};
+
+process.on('SIGTERM', unexport);
+process.on('SIGINT', unexport);
+
 setup(function() {
 	setInterval(function() {
 		readAdc(0, function(value) {
-			console.log(value);
+			console.log('v: ' + value);
 		});
-	}, 50);
+	}, 300);
 });
