@@ -5,9 +5,9 @@ var gpio = require('gpio'),
 /**
  * Reads digital values from a MCP3004 ADC.
  * @param {Number} channel - the ADC channel to read
+ * @param {function()} callback - to be called to render the read value
  * @param {Object} opts - an object containing the pin numbers
  *   for clock, mosi, miso and cspin
- * @return {Number} the read value between 0 and 1023
  */
 var readAdc = function(channel, callback, opts) {
 	if (channel < 0 || channel > 3) throw new Error('adc channel number must be in the range of 0--3');
@@ -72,6 +72,6 @@ var readAdc = function(channel, callback, opts) {
 
 setInterval(function() {
 	readAdc(0, function(value) {
-		console.log(value);
+		console.log('v: ' + value);
 	});
 }, 1000);
