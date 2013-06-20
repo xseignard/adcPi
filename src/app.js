@@ -1,30 +1,22 @@
 var gpio = require('gpio'),
-	async = require('async');
+	async = require('async'),
+	SPICLK  = 18,
+	SPIMISO = 23,
+	SPIMOSI = 24,
+	SPICS   = 25,
+	pins, clockPin, misoPin, mosiPin, csPin;
 
 
-/**
- * Reads digital values from a MCP3004 ADC.
- * @param {Number} channel - the ADC channel to read
- * @param {function()} callback - to be called to render the read value
- * @param {Object} opts - an object containing the pin numbers
- *   for clock, mosi, miso and cspin
- */
-var readAdc = function(channel, callback, opts) {
-	if (channel < 0 || channel > 3) throw new Error('adc channel number must be in the range of 0--3');
-	// pin numbers from opts or default ones
-	var clockPin = opts && opts.clockPin ? opts.clockPin : 18,
-		misoPin = opts && opts.misoPin ? opts.misoPin : 23,
-		mosiPin = opts && opts.mosiPin ? opts.mosiPin : 24,
-		csPin = opts && opts.csPin ? opts.csPin : 25;
+var setup = function(callback, opts) {
 	// direction of each pin
 	var pinsConf = [
-		{pin: clockPin, direction: 'out'},
-		{pin: misoPin, direction: 'in'},
-		{pin: mosiPin, direction: 'out'},
-		{pin: csPin, direction: 'out'}
+		{pin: SPICLK, direction: 'out'},
+		{pin: SPIMISO, direction: 'in'},
+		{pin: SPIMOSI, direction: 'out'},
+		{pin: SPICS, direction: 'out'}
 	];
 	// handle refs to the gpio instances
-	var pins = {};
+	pins = {};
 
 	var _initGpio = function(pinConf, done) {
 		pins[pinConf.pin] = gpio.export(pinConf.pin, {
@@ -37,41 +29,71 @@ var readAdc = function(channel, callback, opts) {
 	// start reading spi data when all pins are ready
 	async.each(pinsConf, _initGpio, function(err) {
 		if (err) throw err;
-		pins[csPin].set(1);
-		pins[clockPin].set(0);
-		pins[csPin].set(0);
-
-		var cmdOut = channel;
-		cmdOut |= 0x18;
-		cmdOut <<= 3;
-		for (var i = 0; i < 5; i++) {
-			if (cmdOut & 0x80) {
-				pins[mosiPin].set(1);
-			}
-			else {
-				pins[mosiPin].set(0);
-			}
-			cmdOut <<= 1;
-			pins[clockPin].set(1);
-			pins[clockPin].set(0);
-		}
-		var adcOut = 0;
-		for (i = 0; i < 12; i++) {
-			pins[clockPin].set(1);
-			pins[clockPin].set(0);
-			adcOut <<= 1;
-			if (pins[misoPin].value) {
-				adcOut |= 0x1;
-			}
-		}
-		pins[csPin].set(1);
-		adcOut >>= 1;
-		callback(adcOut);
+		if(typeof callback === 'function') callback();
 	});
 };
 
-setInterval(function() {
-	readAdc(0, function(value) {
-		console.log('v: ' + value);
+var readAdc = function(channel, callback) {
+	pins[SPICS].set(1, function() {
+		pins[SPICLK].set(0, function() {
+			console.log('test');
+			pins[SPICS].set(0, function() {
+				var cmdOut = channel | 0x18;
+				cmdOut <<= 3;
+				async.times(
+					// do this 5 times
+					5,
+					// each time apply this function
+					function(n, next) {
+						console.log('test');
+						pins[SPIMOSI].set(cmdOut & 0x80, function() {
+							cmdOut <<= 1;
+							pins[SPICLK].set(1, function() {
+								pins[SPICLK].set(0, function() {
+									next();
+								});
+							});
+						});
+					},
+					// when done
+					function(err, stuff) {
+						var adcOut = 0;
+						async.times(
+							// do this 12 times
+							12,
+							// each time apply this function
+							function(n, next) {
+								pins[SPICLK].set(1, function() {
+									pins[SPICLK].set(0, function() {
+										adcOut <<= 1;
+										pins[SPIMISO]._get(function(value) {
+											if (value) {
+												adcOut |= 0x1;
+											}
+											next();
+										});
+									});
+								});
+							},
+							// when done
+							function(err) {
+								pins[SPICS].set(1, function() {
+									adcOut >>= 1;
+									callback(adcOut);
+								});
+							}
+						);
+					}
+				);
+			});
+		});
 	});
-}, 1000);
+};
+
+setup(function() {
+	setInterval(function() {
+		readAdc(0, function(value) {
+			console.log(value);
+		});
+	}, 50);
+});
