@@ -39,7 +39,7 @@ Adcrpi.prototype.init = function(config, callback) {
 	var _initChannel = function(channel, done) {
 		setInterval(function() {
 			_self.readAdc(config.pins, channel, function(value) {
-				if (Math.abs(currentValue - value) < config.tolerance) {
+				if (Math.abs(currentValue - value) > config.tolerance) {
 					var data = {
 						channel: channel,
 						value: value
