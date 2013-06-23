@@ -12,7 +12,6 @@
     "url": "https://github.com/xseignard/adcPi/issues"
   },
   "dependencies": {
-    "gpio": "~0.2.4",
     "async": "~0.2.9",
     "pi-gpio": "0.0.2"
   }
