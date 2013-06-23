@@ -17,6 +17,28 @@ sudo make install
 sudo adduser $USER gpio
 ```
 
+## Usage
+```js
+var ADC = require('../src/adc'),
+    adc = new ADC();
+	
+var end = function() {
+  adc.close();
+  process.exit();
+};
+
+process.on('SIGTERM', end);
+process.on('SIGINT', end);
+
+adc.init(function() {
+  setInterval(function() {
+    adc.read(0, function(value) {
+      console.log('v: ' + value);
+    });
+  }, 300);
+});
+```
+
 ## ADC(opts)
 
 ADC class, that represents an instance of an ADC.
