@@ -1,6 +1,9 @@
 'use strict';
 /**
+ * # adcPi
+ *
  * [Bit banging](http://en.wikipedia.org/wiki/Bit_banging) communication between ADC and the Raspberry Pi.
+ * 
  * Largely inspired by ladyada's script: [https://gist.github.com/ladyada/3151375](https://gist.github.com/ladyada/3151375).
  * 
  * Install `gpio-admin` :
@@ -11,7 +14,10 @@
  * sudo make install
  * sudo adduser $USER gpio
  * ```
- *
+ */
+
+/**
+ * ADC class, that represents an instance of an ADC.
  * @constructor
  * @param {Array} opts - an array of objects describing of the pins to use (e.g. {pin: 9, direction: 'out'})
  */

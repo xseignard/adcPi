@@ -2,9 +2,10 @@
 
 <!-- Start src/adc.js -->
 
-## ADC(opts)
+# adcPi
 
 [Bit banging](http://en.wikipedia.org/wiki/Bit_banging) communication between ADC and the Raspberry Pi.
+
 Largely inspired by ladyada's script: [https://gist.github.com/ladyada/3151375](https://gist.github.com/ladyada/3151375).
 
 Install `gpio-admin` :
@@ -15,6 +16,10 @@ make
 sudo make install
 sudo adduser $USER gpio
 ```
+
+## ADC(opts)
+
+ADC class, that represents an instance of an ADC.
 
 ### Params: 
 
