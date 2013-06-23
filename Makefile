@@ -2,6 +2,7 @@ MOCHA="node_modules/.bin/mocha"
 _MOCHA="node_modules/.bin/_mocha"
 JSHINT="node_modules/.bin/jshint"
 ISTANBUL="node_modules/.bin/istanbul"
+MARKDOX="node_modules/.bin/markdox"
 
 TESTS=$(shell find test/ -name "*.test.js")
 
@@ -20,7 +21,7 @@ coverage:
 	$(ISTANBUL) cover --dir ./reports $(_MOCHA) -- -R spec $(TESTS)
 
 docs:
-	markdox src/adc.js
+	$(MARKDOX) src/adc.js
 	mv output.md README.md
 
 .PHONY: clean test jshint coverage docs
