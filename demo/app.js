@@ -7,9 +7,9 @@ var ADC = require('../adc-pi-gpio'),
 			SPICLK: { number: 12, direction: 'out' },
 			SPIMISO: { number: 16, direction: 'in' },
 			SPIMOSI: { number: 18, direction: 'out' },
-			SPICS: { number: 22, direction: 'out' },
+			SPICS: { number: 22, direction: 'out' }
 		}
 	}
 
-var adc = new ADC()
+var adc = new ADC(config)
 adc.init();
