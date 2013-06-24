@@ -16,6 +16,7 @@
       "email": "vkammerer@gmail.com"
     }
   ],
+  "keywords": ["gpio", "pi-gpio", "raspberry", "pi", "adc"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/xseignard/adcPi/issues"
