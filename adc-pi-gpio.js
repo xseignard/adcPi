@@ -20,7 +20,14 @@
  */
 var gpio = require('pi-gpio'),
 	async = require('async'),
-	_ = require('underscore');
+	_ = require('underscore'),
+	util = require('util'),
+	EventEmitter = require('events').EventEmitter,
+	adcEventNames = {
+		change: 'change',
+		ready: 'ready'
+	}
+
 /**
  * ADC class, that represents an instance of an ADC.
  * @constructor
@@ -40,6 +47,7 @@ var gpio = require('pi-gpio'),
  *     ```
  */
 var ADC = function(opts) {
+		EventEmitter.call(this);
 		opts = opts || {};
 		// conf
 		this.pins = opts.pins || {
@@ -52,22 +60,45 @@ var ADC = function(opts) {
 		this.tolerance = opts.tolerance || 2;
 		this.interval = opts.interval || 300;
 };
+util.inherits(ADC, EventEmitter);
+
 /**
  * Init the pins that are used by the ADC.
  * @param {function()} callback - to be called when init is ok
  * @throws {Error} err - an Error if the initialization went wrong
  */
-ADC.prototype.init = function(callback) {
+ADC.prototype.init = function() {
+	var _self = this,
+	currentValue = -1 - _self.tolerance;
+
 	// to be called for each pin
 	var _initGpio = function(pin, done) {
 		gpio.open(pin.number, pin.direction, function(err) {
 			done();
 		});
 	};
+	var _initChannel = function(channel, done) {
+		setInterval(function() {
+			_self.read(channel, function(value) {
+				if (Math.abs(currentValue - value) > _self.tolerance) {
+					var data = {
+						channel: channel,
+						value: value
+					}
+					_self.emit(adcEventNames.change, data);
+					currentValue = value;
+				}
+			});
+		}, _self.interval);
+	}
+
 	// async init of each pins
-	async.each(_.toArray(this.pins), _initGpio, function(err) {
+	async.each(_.toArray(_self.pins), _initGpio, function(err) {
 		if (err) throw err;
-		if (typeof callback === 'function') callback();
+		async.each(_.toArray(_self.channels), _initChannel, function(err){
+			if (err) throw err;
+			_self.emit(adcEventNames.ready);
+		})
 	});
 };
 

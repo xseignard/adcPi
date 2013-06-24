@@ -12,4 +12,17 @@ var ADC = require('../adc-pi-gpio'),
 	}
 
 var adc = new ADC(config)
+
+process.on('SIGTERM', function(){ adc.close(function(){		
+	console.log('Adcrpi terminated');
+	process.exit();
+})});
+process.on('SIGINT', function(){ adc.close(function(){		
+	console.log('Adcrpi terminated');
+	process.exit();
+})});
+
 adc.init();
+adc.on('change', function(data) {
+    console.log('Channel ' + data.channel + ' value is now ' + data.value);
+});
