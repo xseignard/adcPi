@@ -9,7 +9,13 @@
   "scripts": {
     "test": "make test"
   },
-  "author": "Xavier Seignard<xavier.seignard@gmail.com>",
+  "author": "Xavier Seignard <xavier.seignard@gmail.com>",
+  "contributors": [ 
+    {
+      "name": "Vincent Kammerer",
+      "email": "vkammerer@gmail.com"
+    } 
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/xseignard/adcPi/issues"
