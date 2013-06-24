@@ -6,6 +6,7 @@
     "type": "git",
     "url": "git://github.com/xseignard/adcPi.git"
   },
+  "main": "./adc-pi-gpio",
   "scripts": {
     "test": "make test"
   },
