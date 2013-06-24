@@ -100,7 +100,7 @@ ADC.prototype.read = function(channel, callback) {
 						});
 					},
 					// when done
-					function(err, stuff) {
+					function(err) {
 						if (err) throw err;
 						var adcOut = 0;
 						async.timesSeries(
