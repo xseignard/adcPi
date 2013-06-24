@@ -29,33 +29,33 @@ describe('ADC', function() {
 	describe('#init()', function() {
 		it('pins should be opened', function() {
 			adc = new ADC();
-			adc.init(function() {
+			adc.on('ready', function() {
 				expect(gpioStub.pins[12].state).to.equal('open');
 				expect(gpioStub.pins[16].state).to.equal('open');
 				expect(gpioStub.pins[18].state).to.equal('open');
 				expect(gpioStub.pins[22].state).to.equal('open');
 			});
+			adc.init();
 		});
 		it('pins should be configured with the right direction', function() {
 			adc = new ADC();
-			adc.init(function() {
+			adc.on('ready', function() {
 				expect(gpioStub.pins[12].direction).to.equal('out');
 				expect(gpioStub.pins[16].direction).to.equal('in');
 				expect(gpioStub.pins[18].direction).to.equal('out');
 				expect(gpioStub.pins[22].direction).to.equal('out');
 			});
+			adc.init();
 		});
 		it('pins should be configured according to the given opts', function() {
 			var opts = {
-				pins: {
-					SPICLK : {number: 5, direction: 'out'},
-					SPIMISO : {number: 6, direction: 'in'},
-					SPIMOSI : {number: 7, direction: 'out'},
-					SPICS : {number: 8, direction: 'out'}
-				}
+				SPICLK : 5,
+				SPIMISO : 6,
+				SPIMOSI : 7,
+				SPICS : 8
 			};
 			adc = new ADC(opts);
-			adc.init(function() {
+			adc.on('ready', function() {
 				expect(gpioStub.pins[5].state).to.equal('open');
 				expect(gpioStub.pins[6].state).to.equal('open');
 				expect(gpioStub.pins[7].state).to.equal('open');
@@ -65,6 +65,7 @@ describe('ADC', function() {
 				expect(gpioStub.pins[7].direction).to.equal('out');
 				expect(gpioStub.pins[8].direction).to.equal('out');
 			});
+			adc.init();
 		});
 
 	});
@@ -72,38 +73,38 @@ describe('ADC', function() {
 	describe('#read()', function() {
 		it('value should be 0 when miso pin is 0 all way long', function() {
 			adc = new ADC();
-			adc.init(function() {
+			adc.on('ready', function() {
 				gpioStub.pins[16].value = 0;
 				adc.read(0, function(value) {
 					expect(value).to.equal(0);
 				});
 			});
+			adc.init();
 		});
 		it('value should be 2047 when miso pin is 1 all way long', function() {
 			adc = new ADC();
-			adc.init(function() {
+			adc.on('ready', function() {
 				gpioStub.pins[16].value = 1;
 				adc.read(0, function(value) {
 					expect(value).to.equal(2047);
 				});
 			});
+			adc.init();
 		});
 	});
 
 	describe('#close()', function() {
 		it('pins should be closed', function() {
 			adc = new ADC();
-			adc.init(function() {
-				expect(gpioStub.pins[12].state).to.equal('open');
-				expect(gpioStub.pins[16].state).to.equal('open');
-				expect(gpioStub.pins[18].state).to.equal('open');
-				expect(gpioStub.pins[22].state).to.equal('open');
-				adc.close(function() {
-					expect(gpioStub.pins[12].state).to.equal('closed');
-					expect(gpioStub.pins[16].state).to.equal('closed');
-					expect(gpioStub.pins[18].state).to.equal('closed');
-					expect(gpioStub.pins[22].state).to.equal('closed');
-				});
+			adc.on('close', function() {
+				expect(gpioStub.pins[12].state).to.equal('closed');
+				expect(gpioStub.pins[16].state).to.equal('closed');
+				expect(gpioStub.pins[18].state).to.equal('closed');
+				expect(gpioStub.pins[22].state).to.equal('closed');
+			});
+			adc.init();
+			adc.on('ready', function() {
+				adc.close()
 			});
 		});
 	});

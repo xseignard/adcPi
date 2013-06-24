@@ -15,12 +15,12 @@ process.on('SIGTERM', function(){
 	adc.close();
 });
 process.on('SIGINT', function(){
-	adc.close();			
+	adc.close();
 });
 
 adc.init();
 
-adc.on('ready', function(data) {
+adc.on('ready', function() {
     console.log('Pins ready, listening to channel');
 });
 adc.on('close', function() {
