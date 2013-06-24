@@ -3,29 +3,30 @@ var ADC = require('../adc-pi-gpio'),
 		tolerance : 2,
 		interval : 300,
 		channels : [ 0 ],
-		pins : {
-			SPICLK: { number: 12, direction: 'out' },
-			SPIMISO: { number: 16, direction: 'in' },
-			SPIMOSI: { number: 18, direction: 'out' },
-			SPICS: { number: 22, direction: 'out' }
-		}
-	}
+		SPICLK: 12,
+		SPIMISO: 16,
+		SPIMOSI: 18,
+		SPICS: 22
+	};
 
-var adc = new ADC(config)
+var adc = new ADC(config);
 
-process.on('SIGTERM', function(){ adc.close(function(){		
-	console.log('Adcrpi terminated');
-	process.exit();
-})});
-process.on('SIGINT', function(){ adc.close(function(){		
-	console.log('Adcrpi terminated');
-	process.exit();
-})});
+process.on('SIGTERM', function(){
+	adc.close();
+});
+process.on('SIGINT', function(){
+	adc.close();			
+});
 
 adc.init();
+
 adc.on('ready', function(data) {
     console.log('Pins ready, listening to channel');
 });
+adc.on('close', function() {
+	console.log('ADC terminated');
+	process.exit();
+});
 adc.on('change', function(data) {
-    console.log('Channel ' + data.channel + ' value is now ' + data.value);
+    console.log('Channel ' + data.channel + ' value is now ' + data.value + ' which in proportion is: ' + data.percent);
 });

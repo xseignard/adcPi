@@ -2,7 +2,7 @@ MOCHA="node_modules/.bin/mocha"
 _MOCHA="node_modules/.bin/_mocha"
 JSHINT="node_modules/.bin/jshint"
 ISTANBUL="node_modules/.bin/istanbul"
-MARKDOX="node_modules/.bin/markdox"
+MARKDOX="node_modules/markdox/bin/markdox"
 
 TESTS=$(shell find test/ -name "*.test.js")
 
