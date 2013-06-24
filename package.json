@@ -19,6 +19,7 @@
   ],
   "keywords": ["gpio", "pi-gpio", "raspberry", "pi", "adc"],
   "license": "MIT",
+  "homepage": "https://github.com/xseignard/adcPi",
   "bugs": {
     "url": "https://github.com/xseignard/adcPi/issues"
   },
