@@ -1,4 +1,4 @@
-var Adcrpi = require('../adc-pi-gpio'),
+var ADC = require('../adc-pi-gpio'),
 	config = {
 		tolerance : 2,
 		interval : 300,
@@ -11,8 +11,5 @@ var Adcrpi = require('../adc-pi-gpio'),
 		}
 	}
 
-Adcrpi.init(config);
-
-Adcrpi.on('change', function(data) {
-    console.log('Channel ' + data.channel + ' value is now ' + data.value);
-});
+var adc = new ADC()
+adc.init();
