@@ -1,7 +1,7 @@
 {
   "name": "adcPi",
   "version": "0.0.1",
-  "description": "Using ADC with a Pi",
+  "description": "Using an ADC with a Pi",
   "repository": {
     "type": "git",
     "url": "git://github.com/xseignard/adcPi.git"
