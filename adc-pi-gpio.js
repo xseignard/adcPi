@@ -39,10 +39,10 @@ var ADC = function(opts) {
 		opts = opts || {};
 		// conf
 		this.pins = {
-			SPICLK : {number: opt.SPICLK || 12, direction: 'out'},
-			SPIMISO : {number: opt.SPICLK || 16, direction: 'in'},
-			SPIMOSI : {number: opt.SPICLK || 18, direction: 'out'},
-			SPICS : {number: opt.SPICLK || 22, direction: 'out'}
+			SPICLK : {number: opts.SPICLK || 12, direction: 'out'},
+			SPIMISO : {number: opts.SPIMISO || 16, direction: 'in'},
+			SPIMOSI : {number: opts.SPIMOSI || 18, direction: 'out'},
+			SPICS : {number: opts.SPICS || 22, direction: 'out'}
 		};
 		this.channels = opts.channels || [0];
 		this.tolerance = opts.tolerance || 2;
