@@ -95,9 +95,9 @@ ADC.prototype.init = function() {
 	// async init of each pins
 	async.each(_.toArray(_self.pins), _initGpio, function(err) {
 		if (err) throw err;
+		_self.emit(adcEventNames.ready);
 		async.each(_.toArray(_self.channels), _initChannel, function(err){
 			if (err) throw err;
-			_self.emit(adcEventNames.ready);
 		})
 	});
 };

@@ -23,6 +23,9 @@ process.on('SIGINT', function(){ adc.close(function(){
 })});
 
 adc.init();
+adc.on('ready', function(data) {
+    console.log('Pins ready, listening to channel');
+});
 adc.on('change', function(data) {
     console.log('Channel ' + data.channel + ' value is now ' + data.value);
 });
