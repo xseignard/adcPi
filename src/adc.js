@@ -38,7 +38,8 @@
  * ```
  */
 var gpio = require('pi-gpio'),
-	async = require('async');
+	async = require('async'),
+	_ = require('underscore');
 /**
  * ADC class, that represents an instance of an ADC.
  * @constructor
@@ -65,13 +66,12 @@ var ADC = function(opts) {
 ADC.prototype.init = function(callback) {
 	// to be called for each pin
 	var _initGpio = function(pin, done) {
-		console.log(pin);
 		gpio.open(pin.number, pin.direction, function(err) {
 			done();
 		});
 	};
 	// async init of each pins
-	async.each(this.pins, _initGpio, function(err) {
+	async.each(_.toArray(this.pins), _initGpio, function(err) {
 		if (err) throw err;
 		if (typeof callback === 'function') callback();
 	});
@@ -84,9 +84,10 @@ ADC.prototype.init = function(callback) {
  * @throws {Error} err - an Error if the read went wrong
  */
 ADC.prototype.read = function(channel, callback) {
-	gpio.write(this.pins.SPICS.number, 1, function() {
-		gpio.write(this.pins.SPICLK.number, 0, function() {
-			gpio.write(this.pins.SPICS.number, 0, function() {
+	var _self = this;
+	gpio.write(_self.pins.SPICS.number, 1, function() {
+		gpio.write(_self.pins.SPICLK.number, 0, function() {
+			gpio.write(_self.pins.SPICS.number, 0, function() {
 				var cmdOut = channel;
 				cmdOut |= 0x18;
 				cmdOut <<= 3;
@@ -95,10 +96,10 @@ ADC.prototype.read = function(channel, callback) {
 					5,
 					// each time apply this function
 					function(n, next) {
-						gpio.write(this.pins.SPIMOSI.number, cmdOut & 0x80, function() {
+						gpio.write(_self.pins.SPIMOSI.number, cmdOut & 0x80, function() {
 							cmdOut <<= 1;
-							gpio.write(this.pins.SPICLK.number, 1, function() {
-								gpio.write(this.pins.SPICLK.number, 0, function() {
+							gpio.write(_self.pins.SPICLK.number, 1, function() {
+								gpio.write(_self.pins.SPICLK.number, 0, function() {
 									next();
 								});
 							});
@@ -113,10 +114,10 @@ ADC.prototype.read = function(channel, callback) {
 							12,
 							// each time apply this function
 							function(n, next) {
-								gpio.write(this.pins.SPICLK.number, 1, function() {
-									gpio.write(this.pins.SPICLK.number, 0, function() {
+								gpio.write(_self.pins.SPICLK.number, 1, function() {
+									gpio.write(_self.pins.SPICLK.number, 0, function() {
 										adcOut <<= 1;
-										gpio.read(this.pins.SPIMISO.number, function(err, value) {
+										gpio.read(_self.pins.SPIMISO.number, function(err, value) {
 											if (value > 0) {
 												adcOut |= 0x1;
 											}
@@ -128,7 +129,7 @@ ADC.prototype.read = function(channel, callback) {
 							// when done
 							function(err) {
 								if (err) throw err;
-								gpio.write(this.pins.SPICS.number, 1, function() {
+								gpio.write(_self.pins.SPICS.number, 1, function() {
 									adcOut >>= 1;
 									if (typeof callback === 'function') callback(adcOut);
 								});
@@ -147,13 +148,13 @@ ADC.prototype.read = function(channel, callback) {
  */
 ADC.prototype.close = function (callback) {
 	// to be called for each pin
-	var _closeGpio = function(pinConf, done) {
-		gpio.close(pinConf.pin, function() {
+	var _closeGpio = function(pin, done) {
+		gpio.close(pin.number, function() {
 			done();
 		});
 	};
 	// async close of each pins
-	async.each(this.pins, _closeGpio, function(err) {
+	async.each(_.toArray(this.pins), _closeGpio, function(err) {
 		if (err) throw err;
 		if (typeof callback === 'function') callback();
 	});

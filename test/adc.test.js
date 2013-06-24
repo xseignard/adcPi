@@ -17,6 +17,8 @@ describe('ADC', function() {
 	});
 
 	afterEach(function(){
+		// clear pins
+		gpioStub.pins = {};
 		// un-stub gpios
 		openStub.restore();
 		writeStub.restore();
@@ -44,12 +46,15 @@ describe('ADC', function() {
 			});
 		});
 		it('pins should be configured according to the given opts', function() {
-			adc = new ADC([
-				{pin: 5, direction: 'out'},
-				{pin: 6, direction: 'in'},
-				{pin: 7, direction: 'out'},
-				{pin: 8, direction: 'out'}
-			]);
+			var opts = {
+				pins: {
+					SPICLK : {number: 5, direction: 'out'},
+					SPIMISO : {number: 6, direction: 'in'},
+					SPIMOSI : {number: 7, direction: 'out'},
+					SPICS : {number: 8, direction: 'out'}
+				}
+			};
+			adc = new ADC(opts);
 			adc.init(function() {
 				expect(gpioStub.pins[5].state).to.equal('open');
 				expect(gpioStub.pins[6].state).to.equal('open');

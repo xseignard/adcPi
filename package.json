@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "async": "~0.2.9",
-    "pi-gpio": "0.0.2"
+    "pi-gpio": "0.0.2",
+    "underscore": "~1.4.4"
   },
   "devDependencies": {
     "sinon": "~1.7.3",
