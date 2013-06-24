@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git://github.com/xseignard/adcPi.git"
   },
+  "scripts": {
+    "test": "make test"
+  },
   "author": "Xavier Seignard<xavier.seignard@gmail.com>",
   "license": "MIT",
   "bugs": {

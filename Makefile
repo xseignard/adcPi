@@ -13,7 +13,7 @@ test:
 	$(MOCHA) -R spec $(TESTS)
 	
 jshint:
-	$(JSHINT) src test
+	$(JSHINT) adc-pi-gpio.js test
 
 coverage:
 	@# check if reports folder exists, if not create it
@@ -21,7 +21,7 @@ coverage:
 	$(ISTANBUL) cover --dir ./reports $(_MOCHA) -- -R spec $(TESTS)
 
 docs:
-	$(MARKDOX) src/adc.js
+	$(MARKDOX) adc-pi-gpio.js
 	mv output.md README.md
 
 .PHONY: clean test jshint coverage docs

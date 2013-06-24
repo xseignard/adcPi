@@ -2,7 +2,7 @@
 var chai = require('chai'),
 	expect = chai.expect,
 	gpioStub = require('./gpio.stub'),
-	ADC = require('../src/adc'),
+	ADC = require('../adc-pi-gpio'),
 	openStub, writeStub, readStub, closeStub,
 	adc;
 
