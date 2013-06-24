@@ -2,7 +2,7 @@ MOCHA="node_modules/.bin/mocha"
 _MOCHA="node_modules/.bin/_mocha"
 JSHINT="node_modules/.bin/jshint"
 ISTANBUL="node_modules/.bin/istanbul"
-MARKDOX="node_modules/markdox/bin/markdox"
+DOX="node_modules/.bin/dox"
 
 TESTS=$(shell find test/ -name "*.test.js")
 
@@ -21,7 +21,7 @@ coverage:
 	$(ISTANBUL) cover --dir ./reports $(_MOCHA) -- -R spec $(TESTS)
 
 docs:
-	$(MARKDOX) adc-pi-gpio.js
-	mv output.md README.md
+	cp README.tpl README.md
+	$(DOX) -a < adc-pi-gpio.js >> README.md
 
 .PHONY: clean test jshint coverage docs

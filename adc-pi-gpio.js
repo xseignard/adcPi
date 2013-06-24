@@ -1,14 +1,4 @@
 'use strict';
-/**
- * # adcPi
- *
- * Node.js [Bit banging](http://en.wikipedia.org/wiki/Bit_banging) communication between ADC and the Raspberry Pi.
- * 
- * Largely inspired by ladyada's script: [https://gist.github.com/ladyada/3151375](https://gist.github.com/ladyada/3151375).
- * 
- * ## Usage
- * See [https://github.com/xseignard/adcPi/blob/master/demo/app.js](https://github.com/xseignard/adcPi/blob/master/demo/app.js)
- */
 var gpio = require('pi-gpio'),
 	async = require('async'),
 	_ = require('underscore'),
@@ -21,18 +11,35 @@ var gpio = require('pi-gpio'),
 	};
 
 /**
- * ADC class, that represents an instance of an ADC.
- *     ```js
- * var ADC = require('../adc-pi-gpio'),
- *	config = {
- *		tolerance : 2,
- *		interval : 300,
- *		channels : [ 0 ]
- *	};
- * var adc = new ADC(config);
- *     ```
+ * ADC class, that represents an instance of an ADC. 
+ *
+ * Below is a code snippet that shows the configuration possibilities. 
+ * 
+ * The opts object is optional. And each key inside it too.
+ * 
+ * The values shown there are the defaults fallback.
+ *
+ *   var ADC = require('adc-pi-gpio'),
+ *     opts = {
+ *       tolerance : 2,
+ *       interval : 300,
+ *       channels : [0],
+ *       SPICLK: 12,
+ *       SPIMISO: 16,
+ *       SPIMOSI: 18,
+ *       SPICS: 22
+ *     };
+ *   var adc = new ADC(opts);
+ * 
  * @constructor
- * @param {Object} opts - a configuration object, see the below example
+ * @param {Object} opts - the configuration object
+ * @property {Number} tolerance - if the delta between 2 reads > tolerance, a change event is fired
+ * @property {Number} interval - interval in millis between 2 reads
+ * @property {Array} channels - which ADC channels to read
+ * @property {Number} SPICLK - SPI clock pin
+ * @property {Number} SPIMISO - SPI MISO pin
+ * @property {Number} SPIMOSI - SPI MOSI pin
+ * @property {Number} SPICS - SPI CS pin
  */
 var ADC = function(opts) {
 		EventEmitter.call(this);
@@ -51,20 +58,20 @@ var ADC = function(opts) {
 util.inherits(ADC, EventEmitter);
 
 /**
- * Init the pins that are used by the ADC.
- * @param {function()} callback - to be called when init is ok
+ * Init the pins that are used by the ADC and start reading on the defined ADC channels.
+ * @fires 'ready' event when init is ok
  * @throws {Error} err - an Error if the initialization went wrong
  */
 ADC.prototype.init = function() {
 	var _self = this,
 	currentValue = -1 - _self.tolerance;
-
 	// to be called for each pin
 	var _initGpio = function(pin, done) {
 		gpio.open(pin.number, pin.direction, function(err) {
 			done();
 		});
 	};
+	// when pins are ready, start reading on each defined channels
 	var _initChannel = function(channel, done) {
 		setInterval(function() {
 			_self.read(channel, function(value) {
@@ -79,21 +86,22 @@ ADC.prototype.init = function() {
 				}
 			});
 		}, _self.interval);
+		done();
 	};
-
 	// async init of each pins
 	async.each(_.toArray(_self.pins), _initGpio, function(err) {
 		if (err) throw err;
-		_self.emit(adcEventNames.ready);
-		async.each(_.toArray(_self.channels), _initChannel, function(err){
+		async.each(_self.channels, _initChannel, function(err){
 			if (err) throw err;
+			_self.emit(adcEventNames.ready);
 		});
 	});
 };
 
 /**
  * Close the pins used by the ADC.
- * @param {function()} callback - to be called when close is ok
+ * @fires 'close' event when close is ok
+ * @throws {Error} err - an Error if the close went wrong
  */
 ADC.prototype.close = function () {
 	var _self = this;
@@ -120,7 +128,6 @@ ADC.prototype.read = function(channel, callback) {
 	var _self = this,
 		cmdOut,
 		adcOut;
-
 	var _mosiWrite = function(n, next) {
 		gpio.write(_self.pins.SPIMOSI.number, cmdOut & 0x80, function() {
 			cmdOut <<= 1;
@@ -144,7 +151,6 @@ ADC.prototype.read = function(channel, callback) {
 			});
 		});
 	};
-
 	gpio.write(_self.pins.SPICS.number, 1, function() {
 		gpio.write(_self.pins.SPICLK.number, 0, function() {
 			gpio.write(_self.pins.SPICS.number, 0, function() {
@@ -154,17 +160,15 @@ ADC.prototype.read = function(channel, callback) {
 					function(err) {
 						if (err) throw err;
 						adcOut = 0;
-						async.timesSeries( 12, _misoRead,
+						async.timesSeries(12, _misoRead,
 							function(err) {
 								if (err) throw err;
 								gpio.write(_self.pins.SPICS.number, 1, function() {
 									adcOut >>= 1;
 									if (typeof callback === 'function') callback(adcOut);
 								});
-							}
-						);
-					}
-				);
+						});
+				});
 			});
 		});
 	});
