@@ -1,5 +1,5 @@
 {
-  "name": "adcPi",
+  "name": "adc-pi-gpio",
   "version": "0.0.1",
   "description": "Using an ADC with a Pi",
   "repository": {
