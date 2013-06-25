@@ -4,7 +4,8 @@ Node.js [Bit banging](http://en.wikipedia.org/wiki/Bit_banging) communication be
 Largely inspired by ladyada's script: [https://gist.github.com/ladyada/3151375](https://gist.github.com/ladyada/3151375).
 
 ## Usage
-See [https://github.com/xseignard/adcPi/blob/master/demo/app.js](https://github.com/xseignard/adcPi/blob/master/demo/app.js)
+- install with `npm install adc-pi-gpio --save` 
+- check the demo sample: [https://github.com/xseignard/adcPi/blob/master/demo/app.js](https://github.com/xseignard/adcPi/blob/master/demo/app.js)
 
 ## API
 
