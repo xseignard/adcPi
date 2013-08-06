@@ -1,6 +1,6 @@
 {
   "name": "adc-pi-gpio",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Using an ADC with a Pi",
   "repository": {
     "type": "git",
@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "async": "~0.2.9",
-    "pi-gpio": "0.0.2",
-    "underscore": "~1.4.4"
+    "pi-gpio": "~0.0.2",
+    "underscore": "~1.5.1"
   },
   "devDependencies": {
     "sinon": "~1.7.3",
