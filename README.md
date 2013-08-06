@@ -1,7 +1,5 @@
 # adc-pi-gpio [![Build Status](https://travis-ci.org/xseignard/adcPi.png?branch=master)](https://travis-ci.org/xseignard/adcPi) [![Dependency Status](https://gemnasium.com/xseignard/adcPi.png)](https://gemnasium.com/xseignard/adcPi)
 
-[![NPM](https://nodei.co/npm/adc-pi-gpio.png)](https://nodei.co/npm/adc-pi-gpio/)
-
 Node.js [Bit banging](http://en.wikipedia.org/wiki/Bit_banging) communication between ADC and the Raspberry Pi.
 
 Largely inspired by ladyada's script: [https://gist.github.com/ladyada/3151375](https://gist.github.com/ladyada/3151375).
